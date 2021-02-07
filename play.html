@@ -58,7 +58,7 @@
                     firebase.initializeApp(config);
                     var database = firebase.database();
                     database.ref('/'+id+'/players').on('value',e => {
-                        merge(players,e.val());
+                        players=e.val()
                         draw(players)
                     })
                     {
