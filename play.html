@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"></meta>
+        <title>my website</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.0/socket.io.min.js"></script>
+        <style>
+            .playscene{
+                background-color:cornflowerblue;
+                width:600px;
+                height:600px;
+                padding: 0px;
+            }
+            player{
+                display: block;
+                position:absolute;
+                background-color:red;
+                width: 20px;
+                height:20px;
+                user-select: none;
+            }
+            player.you{
+                background-color: blue;
+            }
+            bullet{
+                display: block;
+                position:absolute;
+                background-color:black;
+                width: 5px;
+                height:5px;
+            }
+            bullet.you{
+                background-color: yellow;
+            }
+        </style>
+    </head>
+    <body style="margin:0px;">
+        <div class="playscene" id="playscene">
+        </div>
+        <script src="https://www.gstatic.com/firebasejs/4.12.1/firebase.js"></script>
+        <script>
+            var playscene=document.getElementById('playscene');
+            var name=document.location.toString().split('=')[1];
+            var players={};
+            var id;
+            {
+                let req=new XMLHttpRequest();
+                req.open('get','/id?name='+name);
+                req.onload=()=>{
+                    id=req.responseText;
+                    if(id=='fail'){
+                        alert('the name has been registered');
+                        document.location='/'
+                    }
+                    var config = {
+                        databaseURL: "https://game-62ae8-default-rtdb.firebaseio.com/",
+                    };
+                    firebase.initializeApp(config);
+                    var database = firebase.database();
+                    database.ref('/'+id+'/players').on('value',e => {
+                        merge(players,e.val());
+                        draw(players)
+                    })
+                    {
+                        let req=new XMLHttpRequest();
+                        req.open('get','/players?id='+id);
+                        req.onload=()=>{
+                            players=JSON.parse(req.responseText)
+                            draw(plaeyrs);
+                        }
+                        req.send();
+                    }
+                }
+                req.send();
+            }
+            function draw(players){
+                var tmp=""
+                if(!players)return;
+                for(var player in players){
+                    if(player==name)continue;
+                    let p=players[player];
+                    if(!p)continue;
+                    let bs=p.bullets
+                    tmp+='<player style="left:'+p.x+'px;top:'+p.y+'px;">'+player+'</player>'
+                    for(var i in bs){
+                        tmp+='<bullet style="left:'+bs[i].x+'px;top:'+bs[i].y+'px;">'+'</bullet>'
+                    }
+                }
+                let p=players[name];
+                if(!p)return;
+                tmp+='<player class="you" style="left:'+p.x+'px;top:'+p.y+'px;">'+name+'</player>'
+                let bs=players[name].bullets;
+                for(var i in bs){
+                    tmp+='<bullet class="you" style="left:'+bs[i].x+'px;top:'+bs[i].y+'px;">'+'</bullet>'
+                }
+                playscene.innerHTML=tmp;
+            }
+            var left,right,up,down;
+            left=right=up=down=false;
+            document.body.addEventListener("keydown",function(e){
+                let move="";
+                switch(e.keyCode){
+                    case 87://up
+                        if(up)return;
+                        move="top";
+                        up=true;
+                        break;
+                    case 83://down
+                        if(down)return;
+                        move="bottom";
+                        down=true;
+                        break;
+                    case 65://left
+                        if(left)return;
+                        move="left";
+                        left=true;
+                        break;
+                    case 68://right
+                        if(right)return;
+                        move="right";
+                        right=true;
+                        break;
+                    default:
+                        return;
+                }
+                send("/"+move+"?name="+name+"&id="+id)
+            })
+            document.body.addEventListener("keyup",function(e){
+                let move="";
+                switch(e.keyCode){
+                    case 87://up
+                        move="top";
+                        up=false;
+                        break;
+                    case 83://down
+                        move="bottom";
+                        down=false;
+                        break;
+                    case 65://left
+                        move="left";
+                        left=false;
+                        break;
+                    case 68://right
+                        move="right";
+                        right=false;
+                        break;
+                    default:
+                        return;
+                }
+                send("/"+move+"Up?name="+name+"&id="+id)
+            })
+            document.body.addEventListener("click",function(e){
+                send("/click?name="+name+"&x="+e.clientX+"&y="+e.clientY+"&id="+id);
+            })
+            function send(s){
+                let req=new XMLHttpRequest();
+                req.open("get",s);
+                req.onload=function(){
+                    if(req.responseText=="fail")send(s)
+                    if(req.responseText=="died")document.location='/';
+                }
+                req.send();
+            }
+            function merge(a,b){
+                for(var i in b){
+                    a[i]=b[i];
+                }
+            }
+        </script>
+    </body>
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"></meta>
+        <title>my website</title>
+        <style>
+            .block{
+                background-color:cadetblue;
+                margin:auto;
+                margin-top:18%;
+                width:300px;
+                text-align: center;
+                padding: 10px;
+            }
+        </style>
+    </head>
+    <body style="margin:0px;">
+        <div class="block">
+            nick name: <input type='text' id="name"/><br/>
+            <input type='button' value="start" onclick="login()"/>
+        </div>
+        <script>
+            function login(){
+                let name=document.getElementById('name').value;
+                if(name=="")return alert("名字不為空")
+                document.location="/play?name="+name;
+            }
+        </script>
+    </body>
+</html>
