@@ -388,7 +388,6 @@ function insertJson(set,path,value){
     var arr=path.split('/');
     now=set;
     for(var i in arr){
-        console.log(arr[i]);
         if(i==arr.length-1){
             now[arr[i]]=value;
             break;
