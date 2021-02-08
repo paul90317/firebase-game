@@ -282,7 +282,7 @@ function moveapply(changeset,namelist){
             player.y+=pspeed;
             if(player.y>range-psize)player.y=range-psize;
         }
-        changeset['/players/'+name]=player;
+        insertJson(changeset,'players/'+name,player);
     }
 }
 function clickapply(changeset,namelist){
@@ -306,8 +306,7 @@ function clickapply(changeset,namelist){
             "y":y/dis*bspeed
         })
         st.click.check=false;
-        if(!changeset['/players/'+name])changeset['/players/'+name+'/bullets/']=player.bullets;
-        else changeset['/players/'+name]['bullets']=player.bullets;
+        insertJson(changeset,'players/'+name+'/bullets',player.bullets)
     }
 }
 function bapply(changeset){
@@ -325,8 +324,8 @@ function bapply(changeset){
                     i--;
                 }
             }
-            if(!changeset['/players/'+name])changeset['/players/'+name+'/bullets/']=bullets;
-            else changeset['/players/'+name]['bullets']=bullets;
+            if(bullets.length)insertJson(changeset,'players/'+name+'/bullets',bullets)
+            else insertJson(changeset,'players/'+name+'/bullets',false)
         }
     }
 }
@@ -345,8 +344,7 @@ function removeapply(changeset){
                             delete players[n2];
                             delete status[n2];
                             delete bdirsofp[n2];
-                            changeset['/players/'+n2]=null;
-                            if(changeset['/players/'+n2+'/bullets/'])delete changeset['/players/'+n2+'/bullets/'];
+                            insertJson(changeset,'players/'+n2,false);
                         }
                 }
             }
@@ -372,7 +370,7 @@ function update(){
         clickapply(changeset,clicklist);
         bapply(changeset);
         removeapply(changeset);
-        serverroot.update(changeset);
+        serverroot.child('players').set(changeset['players']);
     }
     setTimeout(update,tfps);
 }
@@ -384,4 +382,21 @@ function bck(){
         }
     }
     return false;
+}
+
+function insertJson(set,path,value){
+    var arr=path.split('/');
+    now=set;
+    for(var i in arr){
+        console.log(arr[i]);
+        if(i==arr.length-1){
+            now[arr[i]]=value;
+            break;
+        }
+        if(now[arr[i]])now=now[arr[i]];
+        else{
+            now[arr[i]]={};
+            now=now[arr[i]];
+        }
+    }
 }

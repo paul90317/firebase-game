@@ -58,7 +58,7 @@
                     firebase.initializeApp(config);
                     var database = firebase.database();
                     database.ref('/'+id+'/players').on('value',e => {
-                        players=e.val()
+                        mergeJson(players,e.val())
                         draw(players)
                     })
                     {
@@ -66,7 +66,7 @@
                         req.open('get','/players?id='+id);
                         req.onload=()=>{
                             players=JSON.parse(req.responseText)
-                            draw(plaeyrs);
+                            draw(players);
                         }
                         req.send();
                     }
@@ -164,6 +164,13 @@
             function merge(a,b){
                 for(var i in b){
                     a[i]=b[i];
+                }
+            }
+            function mergeJson(a,b){
+                for(var i in b){
+                    if(!a[i]||typeof(a[i])!='object'||typeof(b[i])!='object')
+                        a[i]=b[i];
+                    else merge(a[i],b[i]);
                 }
             }
         </script>
