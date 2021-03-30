@@ -1,1 +1,5 @@
-# firebase-game
+# firebase-game  
+# 遊戲方式
+* 登入  
+* wasd 移動，左鍵射擊。  
+* 對戰採真人大亂鬥，沒有人代表沒人玩。  
